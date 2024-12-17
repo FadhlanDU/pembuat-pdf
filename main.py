@@ -2,8 +2,7 @@ import os
 from fpdf import FPDF
 from PIL import Image
 import comtypes.client
-from PyPDF2 import PdfReader, PdfWriter
-from PyPDF2 import PdfReader, PdfWriter
+
 from PIL import Image
 from PyPDF2 import PdfReader, PdfWriter
 from reportlab.pdfgen import canvas
