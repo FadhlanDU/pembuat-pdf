@@ -29,7 +29,7 @@ def convert_image_to_pdf(file_path, output_dir):
     image.convert("RGB").save(pdf_path, "PDF")
     return pdf_path
 
-import comtypes.client
+
 
 def convert_word_to_pdf(file_path, output_dir):
     word = comtypes.client.CreateObject("Word.Application")
@@ -89,36 +89,72 @@ def add_centered_image_watermark(input_pdf, output_pdf, watermark_image):
     with open(output_pdf, "wb") as output_file:
         writer.write(output_file)
 
+def rename_output_file(output_dir, original_file_name, suffix):
+    """
+    Rename file output dengan format baru.
 
+    :param output_dir: Direktori output
+    :param original_file_name: Nama asli file tanpa path
+    :param suffix: Suffix tambahan untuk nama file
+    :return: Path file hasil rename
+    """
+    base_name, _ = os.path.splitext(original_file_name)
+    new_name = f"{base_name}_{suffix}.pdf"
+    new_path = os.path.join(output_dir, new_name)
+    return new_path
 
-def batch_convert_to_pdf(input_dir, output_dir, watermark_image):
+def batch_convert_to_pdf(input_dir, output_dir, watermark_image, suffix):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    
+
     for root, _, files in os.walk(input_dir):
         for file in files:
             file_path = os.path.join(root, file)
-            if file.lower().endswith(".txt"):
-                output_pdf = os.path.join(output_dir, f"{os.path.splitext(file)[0]}.pdf")
-                convert_text_to_pdf(file_path, output_dir)
-                add_centered_image_watermark(output_pdf, output_pdf, watermark_image)
-            elif file.lower().endswith((".png", ".jpg", ".jpeg")):
-                output_pdf = os.path.join(output_dir, f"{os.path.splitext(file)[0]}.pdf")
-                convert_image_to_pdf(file_path, output_dir)
-                add_centered_image_watermark(output_pdf, output_pdf, watermark_image)
-            elif file.lower().endswith(".docx"):
-                output_pdf = os.path.join(output_dir, f"{os.path.splitext(file)[0]}.pdf")
-                convert_word_to_pdf(file_path, output_dir)
-                add_centered_image_watermark(output_pdf, output_pdf, watermark_image)
-            else:
-                print(f"Skipping unsupported file: {file}")
-    
-    print(f"All files converted and watermarked. Check output directory: {output_dir}")
+            try:
+                if file.lower().endswith((".docx", ".doc")):
+                    output_pdf = os.path.join(output_dir, f"{os.path.splitext(file)[0]}.pdf")
+                    convert_word_to_pdf(file_path, output_dir)
+                    add_centered_image_watermark(output_pdf, output_pdf, watermark_image)
 
+                    # Rename file hasil
+                    renamed_path = rename_output_file(output_dir, file, suffix)
+                    os.rename(output_pdf, renamed_path)
+
+                elif file.lower().endswith((".png", ".jpg", ".jpeg")):
+                    output_pdf = os.path.join(output_dir, f"{os.path.splitext(file)[0]}.pdf")
+                    convert_image_to_pdf(file_path, output_dir)
+                    add_centered_image_watermark(output_pdf, output_pdf, watermark_image)
+
+                    # Rename file hasil
+                    renamed_path = rename_output_file(output_dir, file, suffix)
+                    os.rename(output_pdf, renamed_path)
+
+                elif file.lower().endswith(".txt"):
+                    output_pdf = os.path.join(output_dir, f"{os.path.splitext(file)[0]}.pdf")
+                    convert_text_to_pdf(file_path, output_dir)
+                    add_centered_image_watermark(output_pdf, output_pdf, watermark_image)
+
+                    # Rename file hasil
+                    renamed_path = rename_output_file(output_dir, file, suffix)
+                    os.rename(output_pdf, renamed_path)
+
+                else:
+                    print(f"Skipping unsupported file: {file}")
+                    continue
+
+                # Hapus file asli setelah berhasil diproses
+                os.remove(file_path)
+                print(f"Deleted original file: {file_path}")
+
+            except Exception as e:
+                print(f"Error processing file {file}: {e}")
+
+    print(f"All files converted, watermarked, renamed, and original files deleted. Check output directory: {output_dir}")
 
 # Example usage:
-input_directory = r"D:\Pembuat PDF\word"  # Ganti dengan folder file Anda
-output_directory = r"D:\Pembuat PDF\pdf"     # Ganti dengan folder tujuan
-watermark_image = r"D:\Pembuat PDF\image\logo ubp.png"
+input_directory = r"D:\Pembuat PDF\pembuat-pdf\word"  # Ganti dengan folder file Anda
+output_directory = r"D:\Pembuat PDF\pembuat-pdf\pdf"     # Ganti dengan folder tujuan
+watermark_image = r"D:\Pembuat PDF\pembuat-pdf\image\logo ubp.png"
+suffix = "PPKN_200020_16416287205027_Nyai Yati"
 
-batch_convert_to_pdf(input_directory, output_directory, watermark_image)
+batch_convert_to_pdf(input_directory, output_directory, watermark_image, suffix)
