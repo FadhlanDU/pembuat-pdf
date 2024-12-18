@@ -29,8 +29,6 @@ def convert_image_to_pdf(file_path, output_dir):
     image.convert("RGB").save(pdf_path, "PDF")
     return pdf_path
 
-
-
 def convert_word_to_pdf(file_path, output_dir):
     word = comtypes.client.CreateObject("Word.Application")
     doc = word.Documents.Open(file_path)
@@ -155,6 +153,6 @@ def batch_convert_to_pdf(input_dir, output_dir, watermark_image, suffix):
 input_directory = r"D:\Pembuat PDF\pembuat-pdf\word"  # Ganti dengan folder file Anda
 output_directory = r"D:\Pembuat PDF\pembuat-pdf\pdf"     # Ganti dengan folder tujuan
 watermark_image = r"D:\Pembuat PDF\pembuat-pdf\image\logo ubp.png"
-suffix = "PPKN_200020_16416287205027_Nyai Yati"
+suffix = ""
 
 batch_convert_to_pdf(input_directory, output_directory, watermark_image, suffix)
